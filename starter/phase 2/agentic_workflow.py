@@ -187,7 +187,7 @@ if __name__ == "__main__":
     
     #   3. Loop through the extracted workflow steps:
     istep = 0
-    for step in steps[:1]:
+    for step in steps:
         istep += 1
         print(f">> Processing step ({istep}): {step}")
         print("-"*55)
