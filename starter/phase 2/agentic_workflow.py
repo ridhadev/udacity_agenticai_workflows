@@ -31,10 +31,10 @@ with open(spec_path, "r") as file:
 # Action Planning Agent
 knowledge_action_planning = (    
     "Extract exactly 3 high-level workflow steps for Email Router project planning:\n"
-    "1. Create user stories - create comprehensive user stories for the Email Router product\n"    
-    "2. List product features - create product features for Email Router product with Feature Name, Description, Key Functionality, and User Benefit\n"    
-    "3. Define development tasks - create engineering tasks for Email Router productwith Task ID, Title, Description, Acceptance Criteria, Estimated Effort, and Dependencies\n"    
-    "Focus specifically on Email Router functionality, not generic examples."
+    "1- Create user stories - Create comprehensive user stories for the Email Router product. Use the product spec to define the user stories.\n"    
+    "2- List product features - Generate list of product features for Email Router product with Feature Name, Description, Key Functionality, and User Benefit\n"    
+    "3- Define engineering tasks - Developer tasks for Email Router product with Task ID, Title, Description, Acceptance Criteria, Estimated Effort, and Dependencies\n"    
+    "Generate specific plan for the Email Router project. Do NOT generate generic examples."
 )
 
 # TODO: 4 - Instantiate an action_planning_agent using the 'knowledge_action_planning'
