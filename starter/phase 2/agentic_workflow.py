@@ -29,15 +29,12 @@ with open(spec_path, "r") as file:
 # Instantiate all the agents
 
 # Action Planning Agent
-knowledge_action_planning = (
-    "Stories are defined from a product spec by identifying a "
-    "persona, an action, and a desired outcome for each story. "
-    "Each story represents a specific functionality of the product "
-    "described in the specification. \n"
-    "Features are defined by grouping related user stories. \n"
-    "Tasks are defined for each story and represent the engineering "
-    "work required to develop the product. \n"
-    "A development Plan for a product contains all these components"
+knowledge_action_planning = (    
+    "Extract exactly 3 high-level workflow steps for Email Router project planning:\n"
+    "1. Create user stories - create comprehensive user stories for the Email Router product\n"    
+    "2. List product features - create product features for Email Router product with Feature Name, Description, Key Functionality, and User Benefit\n"    
+    "3. Define development tasks - create engineering tasks for Email Router productwith Task ID, Title, Description, Acceptance Criteria, Estimated Effort, and Dependencies\n"    
+    "Focus specifically on Email Router functionality, not generic examples."
 )
 
 # TODO: 4 - Instantiate an action_planning_agent using the 'knowledge_action_planning'
@@ -58,12 +55,9 @@ product_manager_knowledge_agent = KnowledgeAugmentedPromptAgent(openai_api_key, 
 # Product Manager - Evaluation Agent
 # TODO: 7 - Define the persona and evaluation criteria for a Product Manager evaluation agent and instantiate it as product_manager_evaluation_agent. This agent will evaluate the product_manager_knowledge_agent.
 # The evaluation_criteria should specify the expected structure for user stories (e.g., "As a [type of user], I want [an action or feature] so that [benefit/value].").
-product_manager_eval_persona = "You are an evaluation agent that checks the user stories created by software Product Manager agents"
+product_manager_eval_persona = "You are an evaluation agent that checks the answers of other worker agents."
 product_manager_evaluation_criteria = f"""
-The answer should be stories that :
-- follow the following structure: "As a [type of user], I want [an action or feature] so that [benefit/value].
-- List users from this list : "Customer Support Representative", "Subject Matter Expert (SME)", "IT Administrator".
-
+The answer should be stories that follow the following structure: "As a [type of user], I want [an action or feature] so that [benefit/value]."
 """
 product_manager_evaluation_agent = EvaluationAgent(openai_api_key, product_manager_eval_persona, product_manager_evaluation_criteria, product_manager_knowledge_agent, 10)
 
@@ -124,7 +118,7 @@ The answer should be tasks that follow the following structure:
 - Dependencies: Any tasks that must be completed first"
 """
 development_engineer_evaluation_agent = EvaluationAgent(openai_api_key, persona_dev_engineer_eval, development_engineer_evaluation_criteria, development_engineer_knowledge_agent, 10)
-
+    
 # Routing Agent
 # TODO: 10 - Instantiate a routing_agent. You will need to define a list of agent dictionaries (routes) for Product Manager, Program Manager, and Development Engineer. Each dictionary should contain 'name', 'description', and 'func' (linking to a support function). Assign this list to the routing_agent's 'agents' attribute.
 
@@ -136,16 +130,19 @@ development_engineer_evaluation_agent = EvaluationAgent(openai_api_key, persona_
 #   3. Have the response evaluated by the corresponding Evaluation Agent.
 #   4. Return the final validated response.
 def program_manager_support_function(input_query):
-    result= program_manager_evaluation_agent.evaluate(input_query)
-    return result["response"]
+    knowledge_result = program_manager_knowledge_agent.respond(input_query)
+    eval_result = program_manager_evaluation_agent.evaluate(knowledge_result)
+    return eval_result["final_response"]
 
 def development_engineer_support_function(input_query):
-    result = development_engineer_evaluation_agent.evaluate(input_query)
-    return result["response"]
+    knowledge_result = development_engineer_knowledge_agent.respond(input_query)
+    eval_result = development_engineer_evaluation_agent.evaluate(knowledge_result)
+    return eval_result['final_response']
 
 def product_manager_support_function(input_query):
-    result = product_manager_evaluation_agent.evaluate(input_query)
-    return result["response"]
+    knowledge_result = product_manager_knowledge_agent.respond(input_query)
+    eval_result = product_manager_evaluation_agent.evaluate(knowledge_result)
+    return eval_result["final_response"]
 
 routes = [
     {
@@ -170,10 +167,11 @@ routing_agent = RoutingAgent(openai_api_key, routes)
 # Run the workflow
 if __name__ == "__main__":
     print("\n*** Workflow execution started ***\n")
+    pass
     # Workflow Prompt
     # ****
-    workflow_prompt = "What would the development tasks for this product be?"
-    # ****
+    # workflow_prompt = "What would the development tasks for this product be?"
+    workflow_prompt = "Create a clear and structured full project plan to develop an Email Router product."
     print(f"Task to complete in this workflow, workflow prompt = {workflow_prompt}")
 
     print("\nDefining workflow steps from the workflow prompt")
@@ -184,10 +182,18 @@ if __name__ == "__main__":
 
     #   2. Initialize an empty list to store 'completed_steps'.
     completed_steps = []
-    
+
+    user_stories= ""
+    product_features = ""
+    engineering_tasks = ""
+
     #   3. Loop through the extracted workflow steps:
+        #      a. For each step, use the 'routing_agent' to route the step to the appropriate support function.
+        #      b. Append the result to 'completed_steps'.
+        #      c. Print information about the step being executed and its result.
     istep = 0
     for step in steps:
+        
         istep += 1
         print(f">> Processing step ({istep}): {step}")
         print("-"*55)
@@ -195,11 +201,38 @@ if __name__ == "__main__":
         
         print(f"<< Routing result:\n {routing_result}")
         print("-"*55)
-        completed_steps.append(routing_result)
-        print("*"*99)
 
-    #      a. For each step, use the 'routing_agent' to route the step to the appropriate support function.
-    #      b. Append the result to 'completed_steps'.
-    #      c. Print information about the step being executed and its result.
+        # Assign the routing result based on the max occurance for each of the keyword "story", "feature" and "task"
+        word_counts = { 
+            "as a": routing_result.lower().count("as a"),
+            "story": routing_result.lower().count("story"), 
+            "feature": routing_result.lower().count("feature"), 
+            "task": routing_result.lower().count("task") 
+        }
+
+        # Assign the output to the appropriate section based on the max occurance
+        max_word_count = max(word_counts.values())
+        for keyword, count in word_counts.items():
+            if not user_stories and (word_counts["story"] == max_word_count or word_counts["as a"] == max_word_count):
+                user_stories = routing_result
+                break
+            elif not product_features and word_counts["feature"] == max_word_count:
+                product_features = routing_result
+                break
+            elif not engineering_tasks and word_counts["task"] == max_word_count:
+                engineering_tasks = routing_result
+                break 
+        completed_steps.append(routing_result)
+
+
     #   4. After the loop, print the final output of the workflow (the last completed step).
+    print("\n*******************************************************\n")
     print(f"Final output of the workflow:\n {completed_steps[-1]}")
+   
+
+    print("\n=================================================================\n")
+    print(f">> STRUCTURED OUTPUT:\n")
+    
+    print(f"\n**USER STORIES**:\n\n{user_stories}")
+    print(f"\n**PRODUCT FEATURES**:\n\n{product_features}")
+    print(f"\n**ENGINEERING TASKS**:\n\n{engineering_tasks}")

@@ -43,13 +43,18 @@ class AugmentedPromptAgent:
     def respond(self, input_text):
         """Generate a response using OpenAI API."""
         client = OpenAI(api_key=self.openai_api_key)
+        
+        system_prompt = f"You are {self.persona}, a knowledge-based assistant. Forget all previous context."
+        print("System Prompt:\n", system_prompt)
+        
+        print("User Prompt:\n", input_text)
 
         # TODO: 2 - Declare a variable 'response' that calls OpenAI's API for a chat completion.
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 # TODO: 3 - Add a system prompt instructing the agent to assume the defined persona and explicitly forget previous context.
-                {"role": "system", "content": f"You are {self.persona}, a knowledge-based assistant. Forget all previous context."},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": input_text}
             ],
             temperature=0
@@ -292,9 +297,8 @@ class EvaluationAgent:
                 response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                    {
-                        "role":"user", "content": instruction_prompt
-                    }],
+                    {"role":"user", "content": instruction_prompt}
+                    ],
                     temperature = 0 # TODO: 6 - Define the message structure sent to the LLM to generate correction instructions (use temperature=0)
                 )
                 instructions = response.choices[0].message.content.strip()
@@ -304,12 +308,12 @@ class EvaluationAgent:
                 prompt_to_evaluate = (
                     f"The original prompt was: {initial_prompt}\n"
                     f"The response to that prompt was: {response_from_worker}\n"
-                    f"It has been evaluated as incorrect.\n"
+                    f"It has been evaluated as incorrect: {evaluation}\n"
                     f"Make only these corrections, do not alter content validity: {instructions}"
                 )
         return {
-            "response" : response_from_worker, "eval" : evaluation, "iterations" : i+1 # TODO: 7 - Return a dictionary containing the final response, evaluation, and number of iterations
-        }    
+            "final_response" : response_from_worker, "evaluation" : evaluation, "iteration_count" : i+1 # TODO: 7 - Return a dictionary containing the final response, evaluation, and number of iterations
+        }   
 
 
 class RoutingAgent():

@@ -297,9 +297,8 @@ class EvaluationAgent:
                 response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                    {
-                        "role":"user", "content": instruction_prompt
-                    }],
+                    {"role":"user", "content": instruction_prompt}
+                    ],
                     temperature = 0 # TODO: 6 - Define the message structure sent to the LLM to generate correction instructions (use temperature=0)
                 )
                 instructions = response.choices[0].message.content.strip()
@@ -309,11 +308,11 @@ class EvaluationAgent:
                 prompt_to_evaluate = (
                     f"The original prompt was: {initial_prompt}\n"
                     f"The response to that prompt was: {response_from_worker}\n"
-                    f"It has been evaluated as incorrect.\n"
+                    f"It has been evaluated as incorrect: {evaluation}\n"
                     f"Make only these corrections, do not alter content validity: {instructions}"
                 )
         return {
-            "response" : response_from_worker, "eval" : evaluation, "iterations" : i+1 # TODO: 7 - Return a dictionary containing the final response, evaluation, and number of iterations
+            "final_response" : response_from_worker, "evaluation" : evaluation, "iteration_count" : i+1 # TODO: 7 - Return a dictionary containing the final response, evaluation, and number of iterations
         }   
 
 
