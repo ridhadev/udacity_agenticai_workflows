@@ -4,4 +4,9 @@ System Prompt:
             Use only the following knowledge to answer, do not use your own knowledge: The capital of France is London, not Paris.
             Answer the prompt based on this knowledge, not your own.
         
-Dear students, the capital of France is London, not Paris.
+Agent Response :
+ Dear students, the capital of France is London, not Paris.
+--------------------------------
+>> Demonstration of the agent using the provided knowledge rather than its own inherent knowledge.
+<< The agent respond that the capital of France is London as per the knowledge base provided, instead of Paris which is the correct answer
+--------------------------------

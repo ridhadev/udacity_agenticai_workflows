@@ -19,12 +19,18 @@ augmented_prompt_agent = base_agents.AugmentedPromptAgent(openai_api_key, person
 augmented_agent_response = augmented_prompt_agent.respond(prompt)
 
 # Print the agent's response
-print(augmented_agent_response)
+print("Agent Response :\n", augmented_agent_response)
 
 # TODO: 4 - Add a comment explaining:
+print("-"*75)
+print("Explanatory comments... \n")
 
 # - What knowledge the agent likely used to answer the prompt.
-# >> The agent used its own knowledge to answer the prompt because no specifc information was provided to help it find the answser.
+print(">> What knowledge the agent likely used to answer the prompt ?")
+print("<< The agent used its own knowledge to answer the prompt because no specifc information was provided to help it find the answser.")
 
+print('--------------------------------')
 # - How the system prompt specifying the persona affected the agent's response.
-# >> The prompt response starts with "Dear students," which was specified in the persona details provided.
+print(">> How the system prompt specifying the persona affected the agent's response ?")
+print("<< The prompt response starts with \"Dear students,\" which was specified in the persona details provided.")
+print('--------------------------------')

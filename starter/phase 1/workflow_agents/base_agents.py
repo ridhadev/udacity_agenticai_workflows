@@ -43,13 +43,18 @@ class AugmentedPromptAgent:
     def respond(self, input_text):
         """Generate a response using OpenAI API."""
         client = OpenAI(api_key=self.openai_api_key)
+        
+        system_prompt = f"You are {self.persona}, a knowledge-based assistant. Forget all previous context."
+        print("System Prompt:\n", system_prompt)
+        
+        print("User Prompt:\n", input_text)
 
         # TODO: 2 - Declare a variable 'response' that calls OpenAI's API for a chat completion.
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 # TODO: 3 - Add a system prompt instructing the agent to assume the defined persona and explicitly forget previous context.
-                {"role": "system", "content": f"You are {self.persona}, a knowledge-based assistant. Forget all previous context."},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": input_text}
             ],
             temperature=0
